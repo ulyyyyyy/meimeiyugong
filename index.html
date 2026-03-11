@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美美语共 - 以语相通，以文相融</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .bg-paper {
+                background-color: #f8f5f0; /* 宣纸色 */
+            }
+            .border-ink {
+                border-color: #2d2416; /* 墨色 */
+            }
+            .bg-gradient-china {
+                background: linear-gradient(135deg, #c41e3a 0%, #d4a017 100%); /* 中国红+鎏金 */
+            }
+            .chinese-shadow {
+                box-shadow: 0 4px 12px rgba(45, 36, 22, 0.15);
+            }
+            .festival-card {
+                transition: all 0.3s ease;
+            }
+            .festival-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 8px 24px rgba(45, 36, 22, 0.2);
+            }
+            .modal-content {
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(45, 36, 22, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            .modal-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            .modal-box {
+                background-color: #f8f5f0;
+                border-radius: 12px;
+                width: 90%;
+                max-width: 800px;
+                padding: 2rem;
+                transform: translateY(-20px);
+                transition: all 0.3s ease;
+            }
+            .modal-overlay.active .modal-box {
+                transform: translateY(0);
+            }
+            .course-card {
+                min-height: 100%;
+            }
+            .game-card {
+                transition: all 0.3s ease;
+                min-height: 100%;
+            }
+            .game-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 8px 24px rgba(45, 36, 22, 0.2);
+            }
+            .game-option {
+                cursor: pointer;
+                transition: all 0.2s ease;
+                border: 2px solid #2d2416;
+                padding: 1rem;
+                border-radius: 8px;
+                margin: 0.5rem 0;
+            }
+            .game-option:hover {
+                background-color: #c41e3a10;
+            }
+            .game-option.correct {
+                background-color: #4CAF5020;
+                border-color: #4CAF50;
+            }
+            .game-option.incorrect {
+                background-color: #F4433620;
+                border-color: #F44336;
+            }
+            .hidden {
+                display: none;
+            }
+            .video-container {
+                position: relative;
+                width: 100%;
+                padding-bottom: 56.25%; /* 16:9 比例 */
+                overflow: hidden;
+                border-radius: 8px;
+                margin: 1rem 0;
+            }
+            .video-player {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 8px;
+            }
+            html {
+                scroll-behavior: smooth;
+            }
+            .loader {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #c41e3a;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 20px auto;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            /* 文化视频播放按钮样式 */
+            .play-btn {
+                position: relative;
+                display: inline-block;
+                width: 60px;
+                height: 60px;
+                background-color: #c41e3a;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin: 1rem auto;
+            }
+            .play-btn:hover {
+                transform: scale(1.1);
+                background-color: #a0182e;
+            }
+            .play-btn i {
+                color: white;
+                font-size: 20px;
+                margin-left: 5px;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#c41e3a', // 中国红
+                        secondary: '#d4a017', // 鎏金
+                        ink: '#2d2416', // 墨色
+                        paper: '#f8f5f0', // 宣纸色
+                        bamboo: '#7a9362', // 竹青色
+                    },
+                    fontFamily: {
+                        chinese: ['"Ma Shan Zheng"', '"Noto Serif SC"', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-paper text-ink font-['Noto_Serif_SC'] antialiased">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-paper/95 shadow-md">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="#home" class="flex items-center space-x-2">
+                    <i class="fa-solid fa-book-open text-primary text-2xl"></i>
+                    <span class="font-chinese text-xl font-bold text-ink">美美语共</span>
+                </a>
+                <!-- 桌面导航 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-ink hover:text-primary transition-colors font-medium">首页</a>
+                    <a href="#culture" class="text-ink hover:text-primary transition-colors font-medium">中华文化</a>
+                    <a href="#courses" class="text-ink hover:text-primary transition-colors font-medium">智慧微课</a>
+                    <a href="#games" class="text-ink hover:text-primary transition-colors font-medium">汉语游戏</a>
+                    <a href="#about" class="text-ink hover:text-primary transition-colors font-medium">关于我们</a>
+                </nav>
+                <!-- 移动端菜单按钮 -->
+                <button id="menuBtn" class="md:hidden text-ink text-xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- 移动端导航菜单 -->
+        <div id="mobileMenu" class="md:hidden hidden bg-paper shadow-lg absolute w-full">
+            <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+                <a href="#home" class="text-ink hover:text-primary transition-colors font-medium py-2">首页</a>
+                <a href="#culture" class="text-ink hover:text-primary transition-colors font-medium py-2">中华文化</a>
+                <a href="#courses" class="text-ink hover:text-primary transition-colors font-medium py-2">智慧微课</a>
+                <a href="#games" class="text-ink hover:text-primary transition-colors font-medium py-2">汉语游戏</a>
+                <a href="#about" class="text-ink hover:text-primary transition-colors font-medium py-2">关于我们</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 英雄区 -->
+    <section id="home" class="pt-32 pb-20 bg-gradient-to-b from-paper to-paper/80">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-chinese font-bold text-ink mb-6 text-shadow">
+                        以语相通<br>以文相融
+                    </h1>
+                    <p class="text-lg md:text-xl text-ink/80 mb-8 leading-relaxed">
+                        美美语共，带你领略中华语言文化之美，
+                        感受千年文明的独特魅力，
+                        让语言成为连接世界的桥梁。
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#culture" class="px-8 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-md text-center">
+                            探索文化
+                        </a>
+                        <a href="#courses" class="px-8 py-3 bg-white text-primary border border-primary rounded-lg font-medium hover:bg-primary/5 transition-colors shadow-md text-center">
+                            开始学习
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <img src="./美美语共_logo.png" alt="LOGO" class="rounded-xl chinese-shadow w-[300px] h-auto">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 中华文化板块 -->
+    <section id="culture" class="py-20 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="w-16 h-1 bg-primary mx-auto mb-4"></div>
+                <h2 class="text-3xl md:text-4xl font-chinese font-bold text-ink mb-6">中华文化</h2>
+                <p class="text-ink/70 text-lg">
+                    深入了解中国的历史、艺术、习俗与传统，感受千年文明的独特魅力
+                </p>
+                <div class="w-16 h-1 bg-secondary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- 传统节日 -->
+                <div class="bg-paper rounded-xl overflow-hidden chinese-shadow festival-card">
+                    <img src="./传统节日.png" alt="春节传统节日庆祝场景" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">传统节日</h3>
+                        <p class="text-ink/70 mb-4">
+                            春节、中秋、端午、清明……了解中国重要传统节日的起源、习俗与文化内涵。
+                        </p>
+                        <!-- 视频播放按钮 -->
+                        <div class="text-center mb-4">
+                            <div class="play-btn" onclick="playCultureVideo('festival')">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <p class="text-sm text-primary">点击播放视频介绍</p>
+                        </div>
+                        <button onclick="openModal('festival')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            探索详情 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 书法艺术 -->
+                <div class="bg-paper rounded-xl overflow-hidden chinese-shadow festival-card">
+                    <img src="./书法艺术.png" alt="中国书法艺术展示" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">书法艺术</h3>
+                        <p class="text-ink/70 mb-4">
+                            从甲骨文到楷书，领略中国书法的演变与美学，学习基础的毛笔字书写技巧。
+                        </p>
+                        <!-- 视频播放按钮 -->
+                        <div class="text-center mb-4">
+                            <div class="play-btn" onclick="playCultureVideo('calligraphy')">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <p class="text-sm text-primary">点击播放视频介绍</p>
+                        </div>
+                        <button onclick="openModal('calligraphy')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            探索详情 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 中华美食 -->
+                <div class="bg-paper rounded-xl overflow-hidden chinese-shadow festival-card">
+                    <img src="./传统美食.png" alt="中华美食八大菜系展示" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">中华美食</h3>
+                        <p class="text-ink/70 mb-4">
+                            八大菜系、特色小吃、饮食文化……品味舌尖上的中国，了解美食背后的故事。
+                        </p>
+                        <!-- 视频播放按钮 -->
+                        <div class="text-center mb-4">
+                            <div class="play-btn" onclick="playCultureVideo('food')">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <p class="text-sm text-primary">点击播放视频介绍</p>
+                        </div>
+                        <button onclick="openModal('food')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            探索详情 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 传统工艺 -->
+                <div class="bg-paper rounded-xl overflow-hidden chinese-shadow festival-card">
+                    <img src="./传统工艺.png" alt="中国传统陶瓷工艺品" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">传统工艺</h3>
+                        <p class="text-ink/70 mb-4">
+                            剪纸、刺绣、陶瓷、木雕……欣赏巧夺天工的传统工艺，感受匠人精神。
+                        </p>
+                        <!-- 视频播放按钮 -->
+                        <div class="text-center mb-4">
+                            <div class="play-btn" onclick="playCultureVideo('craft')">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <p class="text-sm text-primary">点击播放视频介绍</p>
+                        </div>
+                        <button onclick="openModal('craft')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            探索详情 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 智慧微课 -->
+    <section id="courses" class="py-20 bg-paper/50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="w-16 h-1 bg-primary mx-auto mb-4"></div>
+                <h2 class="text-3xl md:text-4xl font-chinese font-bold text-ink mb-6">智慧微课</h2>
+                <p class="text-ink/70 text-lg">
+                    轻松学习汉语知识，掌握实用的语言技能，让学习变得简单有趣
+                </p>
+                <div class="w-16 h-1 bg-secondary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 课程1 -->
+                <div class="bg-white rounded-xl overflow-hidden chinese-shadow course-card">
+                    <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="汉语拼音发音教学" class="w-full h-48 object-cover" loading="lazy">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">基础汉语发音</h3>
+                        <p class="text-ink/70 mb-4">
+                            系统学习汉语拼音，掌握正确的发音方法，打好语言基础。
+                        </p>
+                        <button onclick="openCourseModal('course1')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            开始学习 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 课程2 -->
+                <div class="bg-white rounded-xl overflow-hidden chinese-shadow course-card">
+                    <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="日常汉语交际场景" class="w-full h-48 object-cover" loading="lazy">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">日常交际用语</h3>
+                        <p class="text-ink/70 mb-4">
+                            学习常用的日常对话，掌握实用的交际技巧，轻松应对日常交流。
+                        </p>
+                        <button onclick="openCourseModal('course2')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            开始学习 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 课程3 -->
+                <div class="bg-white rounded-xl overflow-hidden chinese-shadow course-card">
+                    <img src="https://images.unsplash.com/photo-1564865878688-9a2444440428?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="汉字书写入门教学" class="w-full h-48 object-cover" loading="lazy">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">汉字书写入门</h3>
+                        <p class="text-ink/70 mb-4">
+                            了解汉字的基本结构，学习正确的书写方法，感受汉字的艺术之美。
+                        </p>
+                        <button onclick="openCourseModal('course3')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            开始学习 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 汉语游戏 -->
+    <section id="games" class="py-20 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="w-16 h-1 bg-primary mx-auto mb-4"></div>
+                <h2 class="text-3xl md:text-4xl font-chinese font-bold text-ink mb-6">汉语游戏</h2>
+                <p class="text-ink/70 text-lg">
+                    在趣味游戏中学习汉语，让学习变得轻松愉快，事半功倍
+                </p>
+                <div class="w-16 h-1 bg-secondary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 游戏1 -->
+                <div class="bg-paper rounded-xl overflow-hidden chinese-shadow game-card">
+                    <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="汉字猜谜游戏界面" class="w-full h-48 object-cover" loading="lazy">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">汉字猜猜看</h3>
+                        <p class="text-ink/70 mb-4">
+                            根据图片和提示猜出对应的汉字，考验你的汉字认知能力。
+                        </p>
+                        <button onclick="openGameModal('game1')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            开始游戏 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 游戏2 -->
+                <div class="bg-paper rounded-xl overflow-hidden chinese-shadow game-card">
+                    <img src="https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="拼音学习游戏界面" class="w-full h-48 object-cover" loading="lazy">
+                    <div class="p-6">
+                        <h3 class="text-xl font-chinese font-bold text-ink mb-3">拼音大挑战</h3>
+                        <p class="text-ink/70 mb-4">
+                            听发音选择正确的拼音，提升你的听力和拼音识别能力。
+                        </p>
+                        <button onclick="openGameModal('game2')" class="inline-flex items-center text-primary hover:text-primary/80 font-medium focus:outline-none">
+                            开始游戏 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我们 -->
+    <section id="about" class="py-20 bg-paper/50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="w-16 h-1 bg-primary mx-auto mb-4"></div>
+                <h2 class="text-3xl md:text-4xl font-chinese font-bold text-ink mb-6">关于我们</h2>
+                <p class="text-ink/70 text-lg">
+                    美美语共，致力于传播中华语言文化，促进中外文化交流
+                </p>
+                <div class="w-16 h-1 bg-secondary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+                    <img src="./美美语共_logo.png" alt="美美语共团队工作场景" class="rounded-xl chinese-shadow w-full">
+                </div>
+                <div class="md:w-1/2">
+                    <h3 class="text-2xl font-chinese font-bold text-ink mb-6">我们的使命</h3>
+                    <p class="text-ink/80 mb-6 leading-relaxed">
+                        美美语共秉承"以语相通，以文相融"的理念，致力于推广中华语言文化，
+                        搭建中外文化交流的桥梁。我们通过丰富多样的文化内容、专业的汉语课程和
+                        趣味的互动游戏，让更多人了解中国、爱上中国文化。
+                    </p>
+                    <h3 class="text-2xl font-chinese font-bold text-ink mb-6">联系我们</h3>
+                    <div class="space-y-4 text-ink/80">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-envelope text-primary text-xl mr-4"></i>
+                            <span>contact@meimeiyugong.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fa-brands fa-weixin text-primary text-xl mr-4"></i>
+                            <span>微信公众号：美美语共 语润全球</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-map-marker-alt text-primary text-xl mr-4"></i>
+                            <span>广西壮族自治区南宁市广西民族大学国际教育学院</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-ink text-white py-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-8 md:mb-0">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa-solid fa-book-open text-secondary text-2xl"></i>
+                        <span class="font-chinese text-xl font-bold">美美语共</span>
+                    </div>
+                    <p class="text-white/70 max-w-md">
+                        以语相通，以文相融，让中华语言文化走向世界
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-lg font-medium mb-4">快速链接</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#home" class="text-white/70 hover:text-white transition-colors">首页</a></li>
+                            <li><a href="#culture" class="text-white/70 hover:text-white transition-colors">中华文化</a></li>
+                            <li><a href="#courses" class="text-white/70 hover:text-white transition-colors">智慧微课</a></li>
+                            <li><a href="#games" class="text-white/70 hover:text-white transition-colors">汉语游戏</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium mb-4">关注我们</h4>
+                        <ul class="space-y-2">
+                            <li><span class="text-white/70"><i class="fa-brands fa-weixin mr-2"></i>微信公众号：美美语共 语润全球</span></li>
+                            <li><a href="https://weibo.com/u/your-official-account" target="_blank" class="text-white/70 hover:text-white transition-colors"><i class="fa-brands fa-weibo mr-2"></i>新浪微博</a></li>
+                            <li><a href="https://www.youtube.com/c/YourChannelName" target="_blank" class="text-white/70 hover:text-white transition-colors"><i class="fa-brands fa-youtube mr-2"></i>YouTube</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-span-2 md:col-span-1">
+                        <h4 class="text-lg font-medium mb-4">订阅资讯</h4>
+                        <div class="flex">
+                            <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full bg-white/10 border border-white/20 focus:outline-none focus:border-secondary text-white placeholder-white/50">
+                            <button class="px-4 py-2 bg-secondary text-white rounded-r-lg hover:bg-secondary/90 transition-colors">
+                                订阅
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-8 pt-8 text-center text-white/50">
+                <p>© 2026 美美语共 版权所有</p>
+                <p class="text-sm mt-2">地址：广西壮族自治区南宁市广西民族大学国际教育学院</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 中华文化详情弹窗 -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-box modal-content">
+            <button onclick="closeModal()" class="float-right text-ink hover:text-primary text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="modalTitle" class="text-2xl md:text-3xl font-chinese font-bold text-ink mb-6 mt-2">标题</h3>
+            
+            <!-- 文化视频播放区域 -->
+            <div id="cultureVideoContainer" class="hidden mb-6">
+                <h4 class="text-xl font-chinese font-bold text-ink mb-3">视频介绍</h4>
+                <div class="video-container">
+                    <video id="cultureVideoPlayer" class="video-player" controls poster="https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80">
+                        <source src="" type="video/mp4">
+                        您的浏览器不支持HTML5视频播放，请升级浏览器。
+                    </video>
+                </div>
+            </div>
+            
+            <div id="modalContent" class="space-y-4 text-ink/80 leading-relaxed">
+                <div class="loader" id="modalLoader"></div>
+            </div>
+            <div class="mt-8 text-center">
+                <button onclick="closeModal()" class="px-8 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-md">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文化视频独立弹窗 -->
+    <div id="cultureVideoModal" class="modal-overlay">
+        <div class="modal-box modal-content max-w-4xl">
+            <button onclick="closeCultureVideoModal()" class="float-right text-ink hover:text-primary text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="cultureVideoTitle" class="text-2xl md:text-3xl font-chinese font-bold text-ink mb-6 mt-2">传统节日 - 视频介绍</h3>
+            <div class="video-container">
+                <video id="standaloneCultureVideoPlayer" class="video-player" controls poster="https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80">
+                    <source src="" type="video/mp4">
+                    您的浏览器不支持HTML5视频播放，请升级浏览器。
+                </video>
+            </div>
+            <div class="mt-8 text-center">
+                <button onclick="closeCultureVideoModal()" class="px-8 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-md">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 课程弹窗 -->
+    <div id="courseModal" class="modal-overlay">
+        <div class="modal-box modal-content">
+            <button onclick="closeCourseModal()" class="float-right text-ink hover:text-primary text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="courseModalTitle" class="text-2xl md:text-3xl font-chinese font-bold text-ink mb-6 mt-2">基础汉语发音</h3>
+            <div id="courseModalContent" class="space-y-4 text-ink/80 leading-relaxed">
+                <div class="loader" id="courseModalLoader"></div>
+            </div>
+            <div class="mt-8 text-center">
+                <button onclick="closeCourseModal()" class="px-8 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-md">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏弹窗 -->
+    <div id="gameModal" class="modal-overlay">
+        <div class="modal-box modal-content">
+            <button onclick="closeGameModal()" class="float-right text-ink hover:text-primary text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="gameModalTitle" class="text-2xl md:text-3xl font-chinese font-bold text-ink mb-6 mt-2">汉字猜猜看</h3>
+            <div id="gameModalContent" class="space-y-4 text-ink/80 leading-relaxed">
+                <div class="loader" id="gameModalLoader"></div>
+            </div>
+            <div class="mt-8 text-center">
+                <button onclick="closeGameModal()" class="px-8 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-md">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 交互逻辑 -->
+    <script>
+        // 移动端菜单切换
+        document.getElementById('menuBtn').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2');
+                navbar.classList.remove('py-4');
+                navbar.classList.add('shadow-lg');
+            } else {
+                navbar.classList.add('py-4');
+                navbar.classList.remove('py-2');
+                navbar.classList.remove('shadow-lg');
+            }
+        });
+
+        // 文化视频数据
+        const cultureVideoData = {
+            festival: {
+                title: "传统节日",
+                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                poster: "https://images.unsplash.com/photo-1550639525-c97d455acf70?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80"
+            },
+            calligraphy: {
+                title: "书法艺术",
+                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                poster: "https://images.unsplash.com/photo-1568150279677-8b5d4df5fb4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80"
+            },
+            food: {
+                title: "中华美食",
+                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                poster: "https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80"
+            },
+            craft: {
+                title: "传统工艺",
+                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                poster: "https://images.unsplash.com/photo-1588943211346-0908a1e3144d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80"
+            }
+        };
+
+        // 文化详情数据
+        const cultureData = {
+            festival: {
+                title: "传统节日",
+                content: `
+                    <p>中国传统节日形式多样，内容丰富，是中华民族悠久历史文化的重要组成部分。</p>
+                    <img src="https://images.unsplash.com/photo-1550639525-c97d455acf70?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80" alt="中国传统节日庆祝场景" class="w-full rounded-lg my-4">
+                    <h4 class="text-lg font-bold mt-4 mb-2">春节（农历新年）</h4>
+                    <p>2026年农历丙午马年春节是2月17日（星期二），是中国人最重要的传统节日。春节标志着万物复苏、新岁开始，人们会贴春联、放鞭炮、吃年夜饭、拜年，庆祝新的一年到来。在2026年，我们迎来的是丙午马年，象征着活力、自由和进取。</p>
+                    <h4 class="text-lg font-bold mt-4 mb-2">中秋节</h4>
+                    <p>中秋节在农历八月十五，是家人团聚的节日。人们赏月、吃月饼，象征团圆美满，寄托对亲人的思念之情。</p>
+                    <h4 class="text-lg font-bold mt-4 mb-2">端午节</h4>
+                    <p>端午节在农历五月初五，为了纪念屈原，人们吃粽子、赛龙舟、挂艾草，是传承爱国主义精神的重要节日。</p>
+                    <h4 class="text-lg font-bold mt-4 mb-2">清明节</h4>
+                    <p>清明节在公历4月4-6日之间，既是祭祖扫墓的日子，也是踏青郊游的好时节，体现了中国人对祖先的敬重和对生命的热爱。</p>
+                `
+            },
+            calligraphy: {
+                title: "书法艺术",
+                content: `
+                    <p>中国书法是一门古老的汉字书写艺术，从甲骨文、金文演变而为大篆、小篆、隶书，至东汉、魏、晋的草书、楷书、行书诸体，书法一直散发着独特的艺术魅力。</p>
+                    <img src="https://images.unsplash.com/photo-1568150279677-8b5d4df5fb4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80" alt="中国书法艺术展示" class="w-full rounded-lg my-4">
+                    <h4 class="text-lg font-bold mt-4 mb-2">书法的种类</h4>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>楷书</strong>：字体端正，笔画清晰，是最常用的字体</li>
+                        <li><strong>行书</strong>：介于楷书和草书之间，书写流畅，易于辨认</li>
+                        <li><strong>草书</strong>：笔画简约，书写快捷，具有很高的艺术价值</li>
+                        <li><strong>隶书</strong>：字形宽扁，横画长而竖画短，讲究"蚕头燕尾"</li>
+                    </ul>
+                    <h4 class="text-lg font-bold mt-4 mb-2">著名书法家</h4>
+                    <p>王羲之、颜真卿、柳公权、欧阳询、苏轼等都是中国历史上著名的书法家，他们的作品至今仍被奉为经典。</p>
+                `
+            },
+            food: {
+                title: "中华美食",
+                content: `
+                    <p>中华美食文化博大精深，历史悠久，以其独特的烹饪技艺和丰富的口味享誉世界。</p>
+                    <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80" alt="中华美食八大菜系展示" class="w-full rounded-lg my-4">
+                    <h4 class="text-lg font-bold mt-4 mb-2">八大菜系</h4>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>鲁菜</strong>：讲究原料质地优良，以盐提鲜，以汤壮鲜</li>
+                        <li><strong>川菜</strong>：麻辣鲜香，口味清鲜醇浓并重</li>
+                        <li><strong>粤菜</strong>：清、鲜、嫩、滑、爽、香</li>
+                        <li><strong>苏菜</strong>：清鲜平和，咸甜适中，讲究刀工</li>
+                        <li><strong>浙菜</strong>：清鲜脆嫩，清爽不腻</li>
+                        <li><strong>闽菜</strong>：汤菜居多，味道清鲜、醇和、荤香</li>
+                        <li><strong>湘菜</strong>：香辣可口，注重原料入味</li>
+                        <li><strong>徽菜</strong>：重油、重色、重火功</li>
+                    </ul>
+                    <h4 class="text-lg font-bold mt-4 mb-2">特色小吃</h4>
+                    <p>每个地区都有自己的特色小吃，如北京烤鸭、天津麻花、上海小笼包、四川火锅、广东点心、西安肉夹馍等，各具地方特色。</p>
+                `
+            },
+            craft: {
+                title: "传统工艺",
+                content: `
+                    <p>中国传统工艺历史悠久，种类繁多，是中华民族智慧的结晶，也是非物质文化遗产的重要组成部分。</p>
+                    <img src="https://images.unsplash.com/photo-1588943211346-0908a1e3144d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80" alt="中国传统陶瓷工艺品" class="w-full rounded-lg my-4">
+                    <h4 class="text-lg font-bold mt-4 mb-2">主要传统工艺</h4>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>剪纸</strong>：用剪刀或刻刀在纸上剪刻花纹，用于装点生活，常用于节日装饰</li>
+                        <li><strong>刺绣</strong>：用针线在织物上绣制各种装饰图案，四大名绣：苏绣、湘绣、粤绣、蜀绣</li>
+                        <li><strong>陶瓷</strong>：景德镇瓷器闻名世界，工艺精湛，是中国的代表性手工艺</li>
+                        <li><strong>木雕</strong>：以各种木材为原料，雕刻成各种工艺品，具有很高的艺术价值</li>
+                        <li><strong>玉雕</strong>：以玉石为原料，经过精心雕琢而成，是中国传统的贵重工艺品</li>
+                        <li><strong>景泰蓝</strong>：又称铜胎掐丝珐琅，工艺复杂，色彩绚丽，是宫廷艺术的代表</li>
+                    </ul>
+                    <h4 class="text-lg font-bold mt-4 mb-2">匠人精神</h4>
+                    <p>传统工艺讲究精益求精、追求极致的匠人精神，每一件作品都凝聚着匠人的心血和智慧，体现了中国传统文化的深厚底蕴。</p>
+                `
+            }
+        };
+
+        // 课程数据
+        const courseData = {
+            course1: {
+                title: "基础汉语发音",
+                content: `
+                    <div class="video-container">
+                        <video class="video-player" controls poster="https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80">
+                            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                            您的浏览器不支持HTML5视频播放，请升级浏览器。
+                        </video>
+                    </div>
+                    <h4 class="text-lg font-bold mt-6 mb-3">课程介绍</h4>
+                    <p>本课程将系统讲解汉语拼音的发音规则和技巧，帮助你掌握标准的汉语发音。从声母、韵母到声调，由浅入深，循序渐进。</p>
+                    <h4 class="text-lg font-bold mt-4 mb-2">学习目标</h4>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li>掌握23个声母的正确发音</li>
+                        <li>掌握24个韵母的正确发音</li>
+                        <li>掌握4个声调的发音方法</li>
+                        <li>能够准确拼读简单的汉字</li>
+                        <li>区分易混淆的发音</li>
+                    </ul>
+                    <h4 class="text-lg font-bold mt-4 mb-2">课程内容</h4>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <div class="flex justify-between items-center mb-2 pb-2 border-b">
+                            <span>1. 汉语拼音概览</span>
+                            <button class="text-primary hover:text-primary/80">播放</button>
+                        </div>
+                        <div class="flex justify-between items-center mb-2 pb-2 border-b">
+                            <span>2. 声母发音技巧</span>
+                            <button class="text-primary hover:text-primary/80">播放</button>
+                        </div>
+                        <div class="flex justify-between items-center mb-2 pb-2 border-b">
+                            <span>3. 韵母发音技巧</span>
+                            <button class="text-primary hover:text-primary/80">播放</button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>4. 声调练习</span>
+                            <button class="text-primary hover:text-primary/80">播放</button>
+                        </div>
+                    </div>
+                `
+            },
+            course2: {
+                title: "日常交际用语",
+                content: `
+                    <div class="video-container">
+                        <video class="video-player" controls poster="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80">
+                            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4">
+                            您的浏览器不支持HTML5视频播放，请升级浏览器。
+                        </video>
+                    </div>
+                    <h4 class="text-lg font-bold mt-6 mb-3">课程介绍</h4>
+                    <p>本课程将学习常用的日常交际用语，帮助你轻松应对各种日常交流场景，从问候、介绍到购物、点餐，全面覆盖。</p>
+                    <h4 class="text-lg font-bold mt-4 mb-2">学习目标</h4>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li>掌握问候、介绍、感谢等基本交际用语</li>
+                        <li>能够进行简单的日常对话</li>
+                        <li>了解中国的交际礼仪</li>
+                        <li>学习实用的生活场景用语</li>
+                    </ul>
+                    <h4 class="text-lg font-bold mt-4 mb-2">常用语句</h4>
+                    <div class="bg-white p-4 rounded-lg mb-4 space-y-3">
+                        <div>
+                            <p class="font-medium text-lg">你好！(Nǐ hǎo!)</p>
+                            <p class="text-sm text-ink/70">Hello! 用于日常问候</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-lg">谢谢！(Xièxie!)</p>
+                            <p class="text-sm text-ink/70">Thank you! 表示感谢</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-lg">对不起！(Duìbuqǐ!)</p>
+                            <p class="text-sm text-ink/70">Sorry! 表示道歉</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-lg">再见！(Zàijiàn!)</p>
+                            <p class="text-sm text-ink/70">Goodbye! 告别用语</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-lg">请问... (Qǐngwèn...)</p>
+                            <p class="text-sm text-ink/70">Excuse me, may I ask... 礼貌提问用语</p>
+                        </div>
+                    </div>
+                `
+            },
+            course3: {
+                title: "汉字书写入门",
+                content: `
+                    <div class="video-container">
+                        <video class="video-player" controls poster="https://images.unsplash.com/photo-1564865878688-9a2444440428?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80">
+                            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                            您的浏览器不支持HTML5视频播放，请升级浏览器。
+                        </video>
+                    </div>
+                    <h4 class="text-lg font-bold mt-6 mb-3">课程介绍</h4>
+                    <p>本课程将介绍汉字的基本结构和书写方法，帮助你写出规范、美观的汉字。从基本笔画到汉字结构，逐步掌握书写技巧。</p>
+                    <img src="https://images.unsplash.com/photo-1564865878688-9a2444440428?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80" alt="汉字书写教学" class="w-full rounded-lg my-4">
+                    <h4 class="text-lg font-bold mt-4 mb-2">学习目标</h4>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li>了解汉字的基本笔画和笔顺</li>
+                        <li>掌握汉字的基本结构</li>
+                        <li>能够正确书写常用汉字</li>
+                        <li>理解汉字的结构美感</li>
+                    </ul>
+                    <h4 class="text-lg font-bold mt-4 mb-2">基本笔画</h4>
+                    <div class="grid grid-cols-2 gap-4 bg-white p-4 rounded-lg mb-4">
+                        <div class="text-center p-4 border rounded-lg">
+                            <p class="text-3xl font-chinese mb-2">一</p>
+                            <p class="font-medium">横 (héng)</p>
+                            <p class="text-sm text-ink/70">Horizontal stroke</p>
+                        </div>
+                        <div class="text-center p-4 border rounded-lg">
+                            <p class="text-3xl font-chinese mb-2">丨</p>
+                            <p class="font-medium">竖 (shù)</p>
+                            <p class="text-sm text-ink/70">Vertical stroke</p>
+                        </div>
+                        <div class="text-center p-4 border rounded-lg">
+                            <p class="text-3xl font-chinese mb-2">丿</p>
+                            <p class="font-medium">撇 (piě)</p>
+                            <p class="text-sm text-ink/70">Left-falling stroke</p>
+                        </div>
+                        <div class="text-center p-4 border rounded-lg">
+                            <p class="text-3xl font-chinese mb-2">㇏</p>
+                            <p class="font-medium">捺 (nà)</p>
+                            <p class="text-sm text-ink/70">Right-falling stroke</p>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // 游戏数据
+        const gameData = {
+            game1: {
+                title: "汉字猜猜看",
+                content: `
+                    <div class="bg-white p-6 rounded-lg mb-6">
+                        <div class="text-center mb-4">
+                            <h4 class="text-xl font-bold mb-2">第1关：请猜出这个图片对应的汉字</h4>
+                            <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80" alt="汉字猜谜游戏" class="mx-auto rounded-lg mb-4">
+                        </div>
+                        <div class="game-option" onclick="checkAnswer(this, true)">
+                            山 (shān) - 表示mountain
+                        </div>
+                        <div class="game-option" onclick="checkAnswer(this, false)">
+                            水 (shuǐ) - 表示water
+                        </div>
+                        <div class="game-option" onclick="checkAnswer(this, false)">
+                            日 (rì) - 表示sun
+                        </div>
+                        <div class="game-option" onclick="checkAnswer(this, false)">
+                            月 (yuè) - 表示moon
+                        </div>
+                        <div id="gameResult" class="mt-4 text-center hidden">
+                            <p class="text-xl font-bold text-green-600">回答正确！</p>
+                            <p class="text-ink/70 mt-2">"山"是象形字，形状像山峰相连，表示mountain的意思。</p>
+                            <button onclick="nextQuestion()" class="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">下一题</button>
+                        </div>
+                    </div>
+                    <p class="text-center text-ink/70">游戏规则：根据图片提示，选择正确的汉字，考验你的汉字认知能力。共5关，全部答对可获得学习证书。</p>
+                `
+            },
+            game2: {
+                title: "拼音大挑战",
+                content: `
+                    <div class="bg-white p-6 rounded-lg mb-6">
+                        <div class="text-center mb-4">
+                            <h4 class="text-xl font-bold mb-2">第1关：请选择正确的拼音</h4>
+                            <p class="text-2xl font-chinese mb-4">汉字：中</p>
+                            <button onclick="playPronunciation()" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 mb-4">
+                                <i class="fa-solid fa-volume-up mr-2"></i>播放发音
+                            </button>
+                        </div>
+                        <div class="game-option" onclick="checkAnswer(this, true)">
+                            zhōng
+                        </div>
+                        <div class="game-option" onclick="checkAnswer(this, false)">
+                            zōng
+                        </div>
+                        <div class="game-option" onclick="checkAnswer(this, false)">
+                            zhòng
+                        </div>
+                        <div class="game-option" onclick="checkAnswer(this, false)">
+                            zòng
+                        </div>
+                        <div id="gameResult" class="mt-4 text-center hidden">
+                            <p class="text-xl font-bold text-green-600">回答正确！</p>
+                            <p class="text-ink/70 mt-2">"中"的正确拼音是 zhōng，是第一声。</p>
+                            <button onclick="nextQuestion()" class="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">下一题</button>
+                        </div>
+                    </div>
+                    <p class="text-center text-ink/70">游戏规则：听汉字发音，选择正确的拼音，提升你的听力和拼音识别能力。共10题，全部答对可获得拼音大师称号。</p>
+                `
+            }
+        };
+
+        // 打开文化详情弹窗
+        function openModal(type) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            const modalLoader = document.getElementById('modalLoader');
+            
+            // 显示加载中
+            modalContent.innerHTML = '';
+            modalLoader.classList.remove('hidden');
+            
+            // 设置标题
+            modalTitle.textContent = cultureData[type].title;
+            
+            // 显示视频区域
+            const videoContainer = document.getElementById('cultureVideoContainer');
+            const videoPlayer = document.getElementById('cultureVideoPlayer');
+            const videoData = cultureVideoData[type];
+            
+            if (videoData) {
+                videoContainer.classList.remove('hidden');
+                videoPlayer.src = videoData.videoUrl;
+                videoPlayer.poster = videoData.poster;
+            } else {
+                videoContainer.classList.add('hidden');
+            }
+            
+            // 模拟加载延迟
+            setTimeout(() => {
+                modalLoader.classList.add('hidden');
+                modalContent.innerHTML = cultureData[type].content;
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }, 500);
+        }
+
+        // 关闭文化详情弹窗
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // 暂停视频
+            const videoPlayer = document.getElementById('cultureVideoPlayer');
+            videoPlayer.pause();
+        }
+
+        // 播放文化视频（独立弹窗）
+        function playCultureVideo(type) {
+            // 关闭其他弹窗
+            closeModal();
+            closeCourseModal();
+            closeGameModal();
+            
+            // 获取视频数据
+            const videoData = cultureVideoData[type];
+            
+            // 设置视频弹窗标题和内容
+            document.getElementById('cultureVideoTitle').textContent = `${videoData.title} - 视频介绍`;
+            const videoPlayer = document.getElementById('standaloneCultureVideoPlayer');
+            videoPlayer.src = videoData.videoUrl;
+            videoPlayer.poster = videoData.poster;
+            
+            // 显示视频弹窗
+            document.getElementById('cultureVideoModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // 自动播放视频
+            setTimeout(() => {
+                videoPlayer.play().catch(err => {
+                    console.log("自动播放失败，请手动点击播放:", err);
+                });
+            }, 500);
+        }
+
+        // 关闭文化视频弹窗
+        function closeCultureVideoModal() {
+            const modal = document.getElementById('cultureVideoModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // 暂停视频
+            const videoPlayer = document.getElementById('standaloneCultureVideoPlayer');
+            videoPlayer.pause();
+        }
+
+        // 打开课程弹窗
+        function openCourseModal(type) {
+            const modal = document.getElementById('courseModal');
+            const modalTitle = document.getElementById('courseModalTitle');
+            const modalContent = document.getElementById('courseModalContent');
+            const modalLoader = document.getElementById('courseModalLoader');
+            
+            // 显示加载中
+            modalContent.innerHTML = '';
+            modalLoader.classList.remove('hidden');
+            
+            // 设置标题
+            modalTitle.textContent = courseData[type].title;
+            
+            // 模拟加载延迟
+            setTimeout(() => {
+                modalLoader.classList.add('hidden');
+                modalContent.innerHTML = courseData[type].content;
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }, 500);
+        }
+
+        // 关闭课程弹窗
+        function closeCourseModal() {
+            const modal = document.getElementById('courseModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // 打开游戏弹窗
+        function openGameModal(type) {
+            const modal = document.getElementById('gameModal');
+            const modalTitle = document.getElementById('gameModalTitle');
+            const modalContent = document.getElementById('gameModalContent');
+            const modalLoader = document.getElementById('gameModalLoader');
+            
+            // 显示加载中
+            modalContent.innerHTML = '';
+            modalLoader.classList.remove('hidden');
+            
+            // 设置标题
+            modalTitle.textContent = gameData[type].title;
+            
+            // 模拟加载延迟
+            setTimeout(() => {
+                modalLoader.classList.add('hidden');
+                modalContent.innerHTML = gameData[type].content;
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }, 500);
+        }
+
+        // 关闭游戏弹窗
+        function closeGameModal() {
+            const modal = document.getElementById('gameModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // 检查游戏答案
+        function checkAnswer(element, isCorrect) {
+            // 禁用所有选项
+            const options = document.querySelectorAll('.game-option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            // 标记答案
+            if (isCorrect) {
+                element.classList.add('correct');
+                const resultElement = element.closest('.bg-white').querySelector('#gameResult');
+                if (resultElement) {
+                    resultElement.classList.remove('hidden');
+                }
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+
+        // 播放拼音发音
+        function playPronunciation() {
+            // 这里可以添加音频播放逻辑
+            alert('播放"中"的发音: zhōng');
+        }
+
+        // 下一题
+        function nextQuestion() {
+            alert('下一题正在开发中，敬请期待！');
+        }
+    </script>
+</body>
+</html>
